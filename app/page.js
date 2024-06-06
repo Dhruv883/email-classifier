@@ -21,7 +21,10 @@ export default function Home() {
   }
 
   return (
-    <button className="border-2 border-red-500 p-4" onClick={() => signIn()}>
+    <button
+      className="border-2 border-red-500 p-4"
+      onClick={() => signIn("google")}
+    >
       Sign In with google
     </button>
   );

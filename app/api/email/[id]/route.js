@@ -1,8 +1,11 @@
 import { google } from "googleapis";
 import { getServerSession } from "next-auth/next";
-import { authOption } from "../auth/[...nextauth]/route";
+import { authOption } from "../../auth/[...nextauth]/route";
 
 export async function GET(request) {
+  const url = request.url.split("/");
+  const messageId = url.slice(-1);
+
   const session = await getServerSession(authOption);
   if (!session) {
     return Response(JSON.stringify({ error: "Unauthorized" }));
@@ -21,13 +24,14 @@ export async function GET(request) {
   const gmail = google.gmail({ version: "v1", auth: oauth2Client });
 
   try {
-    const res = await gmail.users.messages.list({
+    const res = await gmail.users.messages.get({
       userId: "me",
-      maxResults: 10,
+      id: messageId,
+      format: "full",
     });
 
-    const messages = res.data.messages;
-    return Response.json({ messages });
+    const data = res.data;
+    return Response.json({ data });
   } catch (error) {
     return Response.json({ error: error.message });
   }
