@@ -3,9 +3,10 @@ import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 export default function EmailComponent() {
   const { data: session, status } = useSession();
-  const [limit, setLimit] = useState(2);
+  const [limit, setLimit] = useState(10);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
+  const targetMimeTypes = ["text/html", "text/plain"];
 
   const fetchMailID = async () => {
     const response = await fetch(`/api/email?limit=${limit}`);
@@ -19,9 +20,7 @@ export default function EmailComponent() {
     return mail;
   };
 
-  const targetMimeTypes = ["text/plain", "text/html"];
-
-  function findTargetMimeType(part) {
+  const findTargetMimeType = (part) => {
     if (!Array.isArray(part) || !part.length) {
       return;
     }
@@ -42,9 +41,9 @@ export default function EmailComponent() {
     }
 
     return null;
-  }
+  };
 
-  function decodeMail(base64url) {
+  const decodeMail = (base64url) => {
     let base64 = base64url.replace(/-/g, "+").replace(/_/g, "/");
     const padding = "=".repeat((4 - (base64.length % 4)) % 4);
     base64 += padding;
@@ -52,7 +51,22 @@ export default function EmailComponent() {
     const string = atob(base64);
 
     return string;
-  }
+  };
+
+  const classifyMail = () => {
+    mails.forEach(async (mail) => {
+      const emailContent = mail.msg;
+      const res = await fetch(`/api/classify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ emailContent }),
+      });
+      const data = await res.json();
+      console.log(data);
+    });
+  };
 
   useEffect(() => {
     let newMails = [];
@@ -64,11 +78,16 @@ export default function EmailComponent() {
     )
       .then((results) => {
         results.forEach((mail) => {
-          const topLevelParts = mail.parts.filter((part) =>
+          // console.log(mail);
+          const topLevelParts = mail.parts?.filter((part) =>
             part.partId.startsWith("0")
           );
 
-          const mailBody = findTargetMimeType(topLevelParts);
+          let mailBody;
+          mailBody = findTargetMimeType(topLevelParts);
+          if (!mail.parts) {
+            mailBody = decodeMail(mail.payloadBody.data);
+          }
           newMails.push({ ...mail, msg: mailBody });
         });
 
@@ -88,21 +107,34 @@ export default function EmailComponent() {
     fetchInitialData();
   }, []);
 
-  console.log(mails);
-
   return (
     <>
       {status === "authenticated" && (
         <>
-          <p>Welcome, {session.user.name}!</p>
+          <p className="bg-red-400">Welcome, {session.user.name}!</p>
         </>
       )}
       {status === "loading" && <p>Loading...</p>}
       {status === "unauthenticated" && <p>Please sign in</p>}
 
-      <div>
+      <div className="">
+        <button
+          className="p-4 border-2 border-red-500"
+          onClick={() => classifyMail()}
+        >
+          Classify
+        </button>
+      </div>
+      <div className="flex flex-col w-[90%]">
         {mails.map((mail, idx) => {
-          return <div key={idx}>{mail.msg}</div>;
+          return (
+            <div
+              key={idx}
+              className="border-2 border-red-500 my-5 overflow-hidden p-5"
+            >
+              <pre>{mail.snippet}</pre>
+            </div>
+          );
         })}
       </div>
     </>

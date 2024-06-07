@@ -9,7 +9,6 @@ export default function Home() {
 
     return (
       <>
-        {/* <Image width={50} height={50} src={session.user?.image} /> */}
         <button
           className="border-2 border-red-500 p-4"
           onClick={() => signOut()}
