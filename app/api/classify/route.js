@@ -47,7 +47,7 @@ export async function POST(request) {
 
     return Response.json({ answer });
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     return Response.json({ message: "Error checking for mail type" });
   }
 }

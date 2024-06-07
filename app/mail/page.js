@@ -55,7 +55,7 @@ export default function EmailComponent() {
 
   const classifyMail = async () => {
     for (let i = 0; i < mails.length; i++) {
-      const mail = mails[i];
+      let mail = mails[i];
       const emailContent = mail.msg;
       try {
         const res = await fetch(`/api/classify`, {
@@ -66,7 +66,14 @@ export default function EmailComponent() {
           body: JSON.stringify({ emailContent }),
         });
         const data = await res.json();
-        console.log(data);
+        const newMail = { ...mail, type: data.answer };
+
+        setMails((prevMails) => {
+          let newMails = [...prevMails];
+          console.log(newMails);
+          newMails[i] = newMail;
+          return newMails;
+        });
       } catch (error) {
         console.error("Error classifying mail:", error);
       }
@@ -112,7 +119,7 @@ export default function EmailComponent() {
     };
     fetchInitialData();
   }, []);
-
+  // console.log(mails);
   return (
     <>
       {status === "authenticated" && (
@@ -134,12 +141,15 @@ export default function EmailComponent() {
       <div className="flex flex-col w-[90%]">
         {mails.map((mail, idx) => {
           return (
-            <div
-              key={idx}
-              className="border-2 border-red-500 my-5 overflow-hidden p-5"
-            >
-              <pre>{mail.snippet}</pre>
-            </div>
+            <>
+              <div
+                key={idx}
+                className="border-2 border-red-500 my-5 overflow-hidden p-5"
+              >
+                <pre>{mail.snippet}</pre>
+              </div>
+              <div>{mail.type}</div>
+            </>
           );
         })}
       </div>
