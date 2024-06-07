@@ -17,7 +17,7 @@ const authOption = {
           prompt: "consent",
           access_type: "offline",
           response_type: "code",
-          scope: "openid profile https://mail.google.com/",
+          scope: "openid email profile https://mail.google.com/",
         },
       },
     }),

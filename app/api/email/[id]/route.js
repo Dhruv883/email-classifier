@@ -31,7 +31,22 @@ export async function GET(request) {
     });
 
     const data = res.data;
-    return Response.json({ data });
+    return Response.json({
+      id: data.id,
+      threadId: data.threadId,
+      snippet: data.snippet,
+      payloadBody: data.payload.body,
+      headers: {
+        from: data.payload.headers.find((header) => header.name === "From")
+          .value,
+        subject: data.payload.headers.find(
+          (header) => header.name === "Subject"
+        ).value,
+        date: data.payload.headers.find((header) => header.name === "Date")
+          .value,
+      },
+      parts: data.payload.parts,
+    });
   } catch (error) {
     return Response.json({ error: error.message });
   }

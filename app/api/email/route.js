@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth/next";
 import { authOption } from "../auth/[...nextauth]/route";
 
 export async function GET(request) {
+  const searchParams = request.nextUrl.searchParams;
+  const limit = searchParams.get("limit");
+
   const session = await getServerSession(authOption);
   if (!session) {
     return Response(JSON.stringify({ error: "Unauthorized" }));
@@ -23,7 +26,7 @@ export async function GET(request) {
   try {
     const res = await gmail.users.messages.list({
       userId: "me",
-      maxResults: 10,
+      maxResults: limit,
     });
 
     const messages = res.data.messages;
