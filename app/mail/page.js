@@ -1,6 +1,8 @@
 "use client";
-import { useSession } from "next-auth/react";
+import { useSession, signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
+import _ from "lodash";
+
 export default function EmailComponent() {
   const { data: session, status } = useSession();
   const [limit, setLimit] = useState(10);
@@ -53,31 +55,37 @@ export default function EmailComponent() {
     return string;
   };
 
+  const fetchMailType = async (mail) => {
+    const emailContent = mail.msg;
+    try {
+      const res = await fetch(`/api/classify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ emailContent }),
+      });
+      const data = await res.json();
+      return data.answer;
+    } catch (error) {
+      console.error("Error classifying mail:", error);
+    }
+    return null;
+  };
+
   const classifyMail = async () => {
     for (let i = 0; i < mails.length; i++) {
       let mail = mails[i];
-      const emailContent = mail.msg;
-      try {
-        const res = await fetch(`/api/classify`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ emailContent }),
-        });
-        const data = await res.json();
-        const newMail = { ...mail, type: data.answer };
 
-        setMails((prevMails) => {
-          let newMails = [...prevMails];
-          console.log(newMails);
-          newMails[i] = newMail;
-          return newMails;
-        });
-      } catch (error) {
-        console.error("Error classifying mail:", error);
-      }
-      await new Promise((resolve) => setTimeout(resolve, 750));
+      const type = await fetchMailType(mail);
+      const newMail = { ...mail, type: type };
+
+      setMails((prevMails) => {
+        let newMails = [...prevMails];
+        console.log(newMails);
+        newMails[i] = newMail;
+        return newMails;
+      });
     }
   };
 
@@ -99,7 +107,7 @@ export default function EmailComponent() {
           let mailBody;
           mailBody = findTargetMimeType(topLevelParts);
           if (!mail.parts) {
-            mailBody = decodeMail(mail.payloadBody.data);
+            mailBody = decodeMail(mail.payloadBody?.data);
           }
           newMails.push({ ...mail, msg: mailBody });
         });
@@ -122,15 +130,7 @@ export default function EmailComponent() {
   // console.log(mails);
   return (
     <>
-      {status === "authenticated" && (
-        <>
-          <p className="bg-red-400">Welcome, {session.user.name}!</p>
-        </>
-      )}
-      {status === "loading" && <p>Loading...</p>}
-      {status === "unauthenticated" && <p>Please sign in</p>}
-
-      <div className="">
+      <div className="bg-black">
         <button
           className="p-4 border-2 border-red-500"
           onClick={() => classifyMail()}
@@ -138,18 +138,15 @@ export default function EmailComponent() {
           Classify
         </button>
       </div>
-      <div className="flex flex-col w-[90%]">
+      <div className="flex flex-col bg-black text-white">
         {mails.map((mail, idx) => {
           return (
-            <>
-              <div
-                key={idx}
-                className="border-2 border-red-500 my-5 overflow-hidden p-5"
-              >
+            <div key={idx}>
+              <div className="border-2 border-red-500 my-5 mx-5 overflow-hidden p-5">
                 <pre>{mail.snippet}</pre>
               </div>
               <div>{mail.type}</div>
-            </>
+            </div>
           );
         })}
       </div>
