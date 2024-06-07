@@ -53,19 +53,25 @@ export default function EmailComponent() {
     return string;
   };
 
-  const classifyMail = () => {
-    mails.forEach(async (mail) => {
+  const classifyMail = async () => {
+    for (let i = 0; i < mails.length; i++) {
+      const mail = mails[i];
       const emailContent = mail.msg;
-      const res = await fetch(`/api/classify`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ emailContent }),
-      });
-      const data = await res.json();
-      console.log(data);
-    });
+      try {
+        const res = await fetch(`/api/classify`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ emailContent }),
+        });
+        const data = await res.json();
+        console.log(data);
+      } catch (error) {
+        console.error("Error classifying mail:", error);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 750));
+    }
   };
 
   useEffect(() => {
