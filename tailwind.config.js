@@ -12,6 +12,7 @@ module.exports = {
     extend: {
       colors: {
         black: "#09090B",
+        gray: "#27272A",
       },
       fontFamily: {
         notoSans: ["Noto Sans", "sans-serif"],

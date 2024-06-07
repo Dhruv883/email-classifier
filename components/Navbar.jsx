@@ -6,20 +6,20 @@ const Navbar = () => {
 
   return (
     <div className="bg-black text-white flex justify-between items-center px-8 h-1/6">
-      <div className="text-md sm:text-3xl font-medium tracking-wide">
+      <div className="text-lg sm:text-3xl font-medium tracking-wide">
         InboxClassifier
       </div>
 
       {session && session.user ? (
         <button
-          className="sm:text-xl border-2 px-8 py-1 rounded-xl flex items-center justify-center bg-white text-black"
+          className="sm:text-lg border-2 border-white px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
           onClick={() => signOut()}
         >
           Sign Out
         </button>
       ) : (
         <button
-          className="sm:text-xl border-2 px-8 py-1 rounded-xl flex items-center justify-center bg-white text-black"
+          className="sm:text-lg border-2 border-white px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
           onClick={() => signIn("google")}
         >
           Sign in

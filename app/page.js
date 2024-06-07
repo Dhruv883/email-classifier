@@ -1,10 +1,9 @@
 "use client";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <section className="w-full bg-black text-white flex items-center justify-center h-5/6">
+    <section className="w-full bg-black text-[white] flex items-center justify-center h-5/6">
       <div className="flex flex-col gap-4 justify-center items-center px-2">
         <div className="space-y-4 text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-4xl md:text-5xl xl:text-[3.4rem] 2xl:text-[3.75rem]">
@@ -19,15 +18,9 @@ export default function Home() {
         <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center">
           <Link
             href="/mail"
-            className="flex items-center justify-center gap-2 rounded-xl bg-gray-50 px-8 py-2 text-2xl font-medium text-gray-900 disabled:pointer-events-none "
+            className="flex items-center justify-center gap-2 rounded-md bg-white text-black px-8 py-2 text-base font-medium text-gray-900 disabled:pointer-events-none hover:bg-white/85"
           >
             Get Started
-            <Image
-              src="/icons/arrow.svg"
-              width={30}
-              height={15}
-              className="mt-[1px]"
-            />
           </Link>
         </div>
       </div>

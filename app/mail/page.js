@@ -1,13 +1,17 @@
 "use client";
-import { useSession, signIn } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import Loader from "@/components/Loader";
 import _ from "lodash";
+import EmailPreview from "@/components/EmailPreview";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
   const [limit, setLimit] = useState(10);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   const targetMimeTypes = ["text/html", "text/plain"];
 
   const fetchMailID = async () => {
@@ -19,6 +23,7 @@ export default function EmailComponent() {
   const fetchMail = async (id) => {
     const response = await fetch(`/api/email/${id}`);
     const mail = await response.json();
+    setLoading(false);
     return mail;
   };
 
@@ -126,30 +131,48 @@ export default function EmailComponent() {
       await fetchMailID();
     };
     fetchInitialData();
-  }, []);
+  }, [limit]);
+
   // console.log(mails);
+  // console.log(limit);
+  if (loading) return <Loader />;
+
   return (
-    <>
-      <div className="bg-black">
+    <div className="h-full bg-black">
+      <div className="py-4 px-8 flex items-center justify-between">
+        <div>
+          <label htmlFor="limit" className="text-white mr-4 text-xl ">
+            No. of Emails :
+          </label>
+
+          <select
+            onChange={(e) => setLimit(e.target.value)}
+            value={limit}
+            id="limit"
+            className="px-10 py-2  rounded-md text-white bg-black border border-[#27272A] appearance-none [&>option]:font-notoSans"
+          >
+            <option value="10">10 Emails</option>
+            <option value="20">20 Emails</option>
+            <option value="30">30 Emails</option>
+            <option value="40">40 Emails</option>
+            <option value="50">50 Emails</option>
+          </select>
+        </div>
         <button
-          className="p-4 border-2 border-red-500"
+          className="px-6 py-2 rounded-md text-xl text-white bg-gray hover:bg-gray/85 font-notoSans"
           onClick={() => classifyMail()}
         >
           Classify
         </button>
       </div>
-      <div className="flex flex-col bg-black text-white">
-        {mails.map((mail, idx) => {
-          return (
-            <div key={idx}>
-              <div className="border-2 border-red-500 my-5 mx-5 overflow-hidden p-5">
-                <pre>{mail.snippet}</pre>
-              </div>
-              <div>{mail.type}</div>
-            </div>
-          );
-        })}
+      <div className="flex bg-black text-white">
+        <div className="w-1/2 border-2 border-red-500">
+          {mails.map((mail, index) => {
+            return <EmailPreview mail={mail} key={index} />;
+          })}
+        </div>
+        <div className="w-1/2 border-2 border-blue-500"></div>
       </div>
-    </>
+    </div>
   );
 }
