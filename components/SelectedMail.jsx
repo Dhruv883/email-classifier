@@ -2,7 +2,7 @@ import Image from "next/image";
 
 const SelectedMail = ({ selectedMail, setShowModal }) => {
   if (!selectedMail) return;
-  console.log(selectedMail);
+  // console.log(selectedMail);
   const { from, subject, date } = selectedMail?.headers;
   const fromName = from?.split("<")[0];
   const fromEmail = from?.split("<")[1].slice(0, -1);

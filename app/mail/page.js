@@ -9,7 +9,7 @@ import { htmlToText } from "html-to-text";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(20);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -71,6 +71,7 @@ export default function EmailComponent() {
   };
 
   const fetchMailType = async (mail) => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     const emailContent = mail.msg;
     try {
       const res = await fetch(`/api/classify`, {
@@ -90,15 +91,14 @@ export default function EmailComponent() {
 
   const classifyMail = async () => {
     for (let i = 0; i < mails.length; i++) {
+      if (mail.type) continue;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       let mail = mails[i];
-      if (mail.type) return;
-      // await new Promise((resolve) => setTimeout(resolve, 1000));
       const type = await fetchMailType(mail);
       const newMail = { ...mail, type: type };
 
       setMails((prevMails) => {
         let newMails = [...prevMails];
-        console.log(newMails);
         newMails[i] = newMail;
         return newMails;
       });
@@ -149,7 +149,7 @@ export default function EmailComponent() {
     setLoading(false);
   }, [limit]);
 
-  console.log(mails);
+  // console.log(mails);
 
   if (loading) return <Loader />;
 

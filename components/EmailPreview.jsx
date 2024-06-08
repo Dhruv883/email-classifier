@@ -4,7 +4,8 @@ const EmailPreview = ({
   selectedMailID,
   setShowModal,
 }) => {
-  const { from, subject } = mail.headers;
+  if (!mail) return;
+  const { from, subject } = mail?.headers;
   const fromName = from.split("<")[0];
   const { id, type, snippet } = mail;
 
