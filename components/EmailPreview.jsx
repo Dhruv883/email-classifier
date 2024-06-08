@@ -12,7 +12,11 @@ const EmailPreview = ({ mail, setSelectedMail, selectedMailID }) => {
     >
       <div className="text-2xl font-semibold">{fromName}</div>
       <div className="w-4/5 font-medium">Sub: {subject}</div>
-      <div className="text-textGray">{snippet}</div>
+      <div className="text-textGray text-wrap">
+        <pre className="text-wrap break-words whitespace-pre-wrap">
+          {snippet}
+        </pre>
+      </div>
 
       {type && (
         <div className="absolute top-2 right-5 border px-4 py-1 rounded-2xl">

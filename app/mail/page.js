@@ -5,13 +5,14 @@ import Loader from "@/components/Loader";
 import _ from "lodash";
 import EmailPreview from "@/components/EmailPreview";
 import SelectedMail from "@/components/SelectedMail";
+import { htmlToText } from "html-to-text";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
   const [limit, setLimit] = useState(10);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedMail, setSelectedMail] = useState(null);
 
   const targetMimeTypes = ["text/html", "text/plain"];
@@ -36,7 +37,12 @@ export default function EmailComponent() {
 
     for (const pt of part) {
       if (targetMimeTypes.includes(pt.mimeType)) {
-        return decodeMail(pt.body.data);
+        let body = decodeMail(pt.body.data);
+        if (pt.mimeType == "text/html") 
+          body = body.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");{
+          body = htmlToText(body);
+        }
+        return body;
       }
     }
 
@@ -97,6 +103,7 @@ export default function EmailComponent() {
   };
 
   useEffect(() => {
+    setLoading(true);
     let newMails = [];
     Promise.all(
       mailIDs?.map(async (mail) => {
@@ -126,14 +133,17 @@ export default function EmailComponent() {
         console.error("Failed to fetch mails:", error);
       });
 
+    setLoading(false);
     // setMails(newMails);
   }, [mailIDs, limit]);
 
   useEffect(() => {
+    setLoading(true);
     const fetchInitialData = async () => {
       await fetchMailID();
     };
     fetchInitialData();
+    setLoading(false);
   }, [limit]);
 
   // console.log(mails);
