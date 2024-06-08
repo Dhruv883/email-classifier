@@ -8,6 +8,15 @@ const EmailPreview = ({
   const fromName = from.split("<")[0];
   const { id, type, snippet } = mail;
 
+  const typeStyle = {
+    Important: "#17C964",
+    Promotions: "#F5A524",
+    Social: "#006FEE",
+    Marketing: "#F5A524",
+    Spam: "#F31260",
+    General: "#9353D3",
+  };
+
   const handleClick = () => {
     setSelectedMail(mail);
     setShowModal(true);
@@ -29,7 +38,10 @@ const EmailPreview = ({
       </div>
 
       {type && (
-        <div className="absolute top-2 right-5 border px-4 py-1 rounded-2xl">
+        <div
+          className={`absolute top-2 right-5 px-4 py-1 rounded-2xl`}
+          style={{ backgroundColor: typeStyle[type] }}
+        >
           {type}
         </div>
       )}

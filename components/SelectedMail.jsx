@@ -1,6 +1,5 @@
 import Image from "next/image";
 
-Image;
 const SelectedMail = ({ selectedMail, setShowModal }) => {
   if (!selectedMail) return;
   console.log(selectedMail);
@@ -15,6 +14,15 @@ const SelectedMail = ({ selectedMail, setShowModal }) => {
     year: "numeric",
   });
 
+  const typeStyle = {
+    Important: "#17C964",
+    Promotions: "#F5A524",
+    Social: "#006FEE",
+    Marketing: "#F5A524",
+    Spam: "#F31260",
+    General: "#9353D3",
+  };
+
   return (
     <div className="border border-gray rounded-md">
       <div onClick={() => setShowModal(false)} className="lg:hidden p-2">
@@ -28,7 +36,12 @@ const SelectedMail = ({ selectedMail, setShowModal }) => {
         <div className="text-sm text-textGray">From: {fromEmail}</div>
         <div className="font-medium">Sub: {subject}</div>
         {type && (
-          <div className="border px-4 py-1 rounded-lg w-max">{type}</div>
+          <div
+            className="px-4 py-1 rounded-lg w-max"
+            style={{ backgroundColor: typeStyle[type] }}
+          >
+            {type}
+          </div>
         )}
       </div>
       <div className="p-4 text-wrap w-full">

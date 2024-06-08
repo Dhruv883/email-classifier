@@ -88,36 +88,18 @@ export default function EmailComponent() {
     return null;
   };
 
-  // const classifyMail = async () => {
-  //   for (let i = 0; i < mails.length; i++) {
-  //     let mail = mails[i];
-
-  //     const type = await fetchMailType(mail);
-  //     const newMail = { ...mail, type: type };
-
-  //     setMails((prevMails) => {
-  //       let newMails = [...prevMails];
-  //       console.log(newMails);
-  //       newMails[i] = newMail;
-  //       return newMails;
-  //     });
-  //   }
-  // };
-
-  const BATCH_SIZE = 5;
-
   const classifyMail = async () => {
-    for (let i = 0; i < mails.length; i += BATCH_SIZE) {
-      const batch = mails.slice(i, i + BATCH_SIZE);
-      const types = await Promise.all(batch.map(fetchMailType));
-      const classifiedBatch = batch.map((mail, index) => ({
-        ...mail,
-        type: types[index],
-      }));
+    for (let i = 0; i < mails.length; i++) {
+      let mail = mails[i];
+      if (mail.type) return;
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
+      const type = await fetchMailType(mail);
+      const newMail = { ...mail, type: type };
 
       setMails((prevMails) => {
         let newMails = [...prevMails];
-        newMails.splice(i, BATCH_SIZE, ...classifiedBatch);
+        console.log(newMails);
+        newMails[i] = newMail;
         return newMails;
       });
     }
