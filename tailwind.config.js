@@ -13,6 +13,8 @@ module.exports = {
       colors: {
         black: "#09090B",
         gray: "#27272A",
+        lightGray: "#A1A1AA",
+        textGray: "#9F9FA7",
       },
       fontFamily: {
         notoSans: ["Noto Sans", "sans-serif"],

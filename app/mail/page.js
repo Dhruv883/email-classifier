@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
 import _ from "lodash";
 import EmailPreview from "@/components/EmailPreview";
+import SelectedMail from "@/components/SelectedMail";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
@@ -11,6 +12,7 @@ export default function EmailComponent() {
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [selectedMail, setSelectedMail] = useState(null);
 
   const targetMimeTypes = ["text/html", "text/plain"];
 
@@ -115,6 +117,7 @@ export default function EmailComponent() {
             mailBody = decodeMail(mail.payloadBody?.data);
           }
           newMails.push({ ...mail, msg: mailBody });
+          setSelectedMail(newMails[0]);
         });
 
         setMails(newMails);
@@ -134,7 +137,7 @@ export default function EmailComponent() {
   }, [limit]);
 
   // console.log(mails);
-  // console.log(limit);
+
   if (loading) return <Loader />;
 
   return (
@@ -165,13 +168,22 @@ export default function EmailComponent() {
           Classify
         </button>
       </div>
-      <div className="flex bg-black text-white">
-        <div className="w-1/2 border-2 border-red-500">
+      <div className="flex gap-4 bg-black text-white">
+        <div className="w-1/2 h-screen overflow-y-scroll scroll-smooth scrollbar-hidden flex flex-col gap-4 p-4 border border-gray">
           {mails.map((mail, index) => {
-            return <EmailPreview mail={mail} key={index} />;
+            return (
+              <EmailPreview
+                mail={mail}
+                key={index}
+                setSelectedMail={setSelectedMail}
+                selectedMailID={selectedMail.id}
+              />
+            );
           })}
         </div>
-        <div className="w-1/2 border-2 border-blue-500"></div>
+        <div className="w-1/2 mr-4 h-screen overflow-y-scroll scroll-smooth scrollbar-hidden">
+          <SelectedMail selectedMail={selectedMail} />
+        </div>
       </div>
     </div>
   );

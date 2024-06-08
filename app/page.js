@@ -9,7 +9,7 @@ export default function Home() {
           <h1 className="text-4xl font-bold tracking-tight sm:text-4xl md:text-5xl xl:text-[3.4rem] 2xl:text-[3.75rem]">
             Effortlessly Manage Your Inbox
           </h1>
-          <p className="max-w-[600px] mx-auto text-gray-400 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
+          <p className="max-w-[600px] mx-auto text-lightGray md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
             Classify, filter, and organize your emails with our powerful email
             management app. Streamline your workflow and stay on top of your
             inbox.
