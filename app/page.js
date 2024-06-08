@@ -17,7 +17,7 @@ export default function Home() {
         </div>
         <div className="flex flex-col gap-2 min-[400px]:flex-row justify-center">
           <Link
-            href="/mail"
+            href="/key"
             className="flex items-center justify-center gap-2 rounded-md bg-white text-black px-8 py-2 text-base font-medium text-gray-900 disabled:pointer-events-none hover:bg-white/85"
           >
             Get Started

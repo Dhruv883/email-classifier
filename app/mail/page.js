@@ -6,15 +6,17 @@ import _ from "lodash";
 import EmailPreview from "@/components/EmailPreview";
 import SelectedMail from "@/components/SelectedMail";
 import { htmlToText } from "html-to-text";
+import { redirect } from "next/navigation";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
-  const [limit, setLimit] = useState(20);
+  const [limit, setLimit] = useState(10);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMail, setSelectedMail] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  if (localStorage.getItem("GEMINI_API_KEY") === null) redirect("/key");
 
   const targetMimeTypes = ["text/html", "text/plain"];
 
@@ -71,7 +73,7 @@ export default function EmailComponent() {
   };
 
   const fetchMailType = async (mail) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
     const emailContent = mail.msg;
     try {
       const res = await fetch(`/api/classify`, {
@@ -91,9 +93,9 @@ export default function EmailComponent() {
 
   const classifyMail = async () => {
     for (let i = 0; i < mails.length; i++) {
+      let mail = mails[i];
       if (mail.type) continue;
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      let mail = mails[i];
       const type = await fetchMailType(mail);
       const newMail = { ...mail, type: type };
 
