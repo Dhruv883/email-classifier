@@ -19,6 +19,9 @@ module.exports = {
       fontFamily: {
         notoSans: ["Noto Sans", "sans-serif"],
       },
+      screens: {
+        mobile: "500px",
+      },
     },
   },
   plugins: [],

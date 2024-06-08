@@ -14,6 +14,7 @@ export default function EmailComponent() {
   const [mailIDs, setMailIDs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMail, setSelectedMail] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const targetMimeTypes = ["text/html", "text/plain"];
 
@@ -38,8 +39,9 @@ export default function EmailComponent() {
     for (const pt of part) {
       if (targetMimeTypes.includes(pt.mimeType)) {
         let body = decodeMail(pt.body.data);
-        if (pt.mimeType == "text/html") 
-          body = body.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");{
+        if (pt.mimeType == "text/html")
+          body = body.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "");
+        {
           body = htmlToText(body);
         }
         return body;
@@ -152,8 +154,8 @@ export default function EmailComponent() {
 
   return (
     <div className="h-full bg-black">
-      <div className="py-4 px-8 flex items-center justify-between">
-        <div>
+      <div className="py-4 px-8 flex flex-col mobile:flex-row items-center mobile:justify-between gap-3 ">
+        <div className="flex flex-col mobile:flex-row items-center justify-center gap-2 ">
           <label htmlFor="limit" className="text-white mr-4 text-xl ">
             No. of Emails :
           </label>
@@ -172,14 +174,14 @@ export default function EmailComponent() {
           </select>
         </div>
         <button
-          className="px-6 py-2 rounded-md text-xl text-white bg-gray hover:bg-gray/85 font-notoSans"
+          className="px-10 py-2 rounded-md text-xl text-white bg-gray hover:bg-gray/85 font-notoSans"
           onClick={() => classifyMail()}
         >
           Classify
         </button>
       </div>
-      <div className="flex gap-4 bg-black text-white">
-        <div className="w-1/2 h-screen overflow-y-scroll scroll-smooth scrollbar-hidden flex flex-col gap-4 p-4 border border-gray">
+      <div className="flex gap-4 bg-black text-white lg:px-4">
+        <div className="w-full lg:w-1/2 h-screen overflow-y-scroll scroll-smooth scrollbar-hidden flex flex-col gap-4 p-4 md:border border-gray rounded-lg">
           {mails.map((mail, index) => {
             return (
               <EmailPreview
@@ -187,12 +189,20 @@ export default function EmailComponent() {
                 key={index}
                 setSelectedMail={setSelectedMail}
                 selectedMailID={selectedMail.id}
+                setShowModal={setShowModal}
               />
             );
           })}
         </div>
-        <div className="w-1/2 mr-4 h-screen overflow-y-scroll scroll-smooth scrollbar-hidden">
-          <SelectedMail selectedMail={selectedMail} />
+        <div
+          className={`w-full bg-black absolute z-50 lg:relative lg:w-1/2 h-screen overflow-y-scroll scroll-smooth scrollbar-hidden ${
+            showModal ? "block" : "hidden"
+          } lg:block`}
+        >
+          <SelectedMail
+            selectedMail={selectedMail}
+            setShowModal={setShowModal}
+          />
         </div>
       </div>
     </div>

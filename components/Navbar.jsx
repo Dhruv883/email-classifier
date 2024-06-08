@@ -12,14 +12,14 @@ const Navbar = () => {
 
       {session && session.user ? (
         <button
-          className="sm:text-lg border-2 border-white px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
+          className="sm:text-lg border-2 border-white px-3 sm:px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
           onClick={() => signOut()}
         >
           Sign Out
         </button>
       ) : (
         <button
-          className="sm:text-lg border-2 border-white px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
+          className="sm:text-lg border-2 border-white px-3 sm:px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
           onClick={() => signIn("google")}
         >
           Sign in

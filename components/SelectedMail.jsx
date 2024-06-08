@@ -1,4 +1,7 @@
-const SelectedMail = ({ selectedMail }) => {
+import Image from "next/image";
+
+Image;
+const SelectedMail = ({ selectedMail, setShowModal }) => {
   if (!selectedMail) return;
   console.log(selectedMail);
   const { from, subject, date } = selectedMail?.headers;
@@ -14,6 +17,9 @@ const SelectedMail = ({ selectedMail }) => {
 
   return (
     <div className="border border-gray rounded-md">
+      <div onClick={() => setShowModal(false)} className="lg:hidden p-2">
+        <Image src="/icons/cross.svg" width={50} height={50} />
+      </div>
       <div className="w-full p-4 border-b border-gray space-y-2">
         <div className="flex justify-between">
           <span className="text-2xl font-semibold">{fromName}</span>
