@@ -16,7 +16,7 @@ const SelectedMail = ({ selectedMail, setShowModal }) => {
 
   const typeStyle = {
     Important: "#17C964",
-    Promotions: "#F5A524",
+    Promotions: "#f36f2e",
     Social: "#006FEE",
     Marketing: "#F5A524",
     Spam: "#F31260",

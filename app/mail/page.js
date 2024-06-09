@@ -9,7 +9,7 @@ import { redirect } from "next/navigation";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
-  const [limit, setLimit] = useState(25);
+  const [limit, setLimit] = useState(15);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,8 +98,6 @@ export default function EmailComponent() {
     return null;
   };
 
-  const [unclassifiedEmails, setUnclassifiedEmails] = useState([]);
-
   const classifyMail = async () => {
     setClassifying(true);
     const SIZE = 5;
@@ -109,34 +107,36 @@ export default function EmailComponent() {
       let type = await fetchMailType(mail);
       if (type === undefined) {
         await new Promise((resolve) => setTimeout(resolve, 3000));
-        setUnclassifiedEmails((prev) => {
-          return [...prev, i];
-        });
       }
-      console.log(i, " ", type);
+      // console.log(i, " ", type);
       const newMail = { ...mail, type: type };
-
+      if (mail.id == selectedMail.id) setSelectedMail(newMail);
       setMails((prevMails) => {
         let newMails = [...prevMails];
         newMails[i] = newMail;
         return newMails;
       });
+
       if (i % SIZE == 0)
         await new Promise((resolve) => setTimeout(resolve, 5000));
     }
-    classifyRestMails();
+    await classifyRestMails();
+    setClassifying(false);
   };
 
   const classifyRestMails = async () => {
-    while (unclassifiedEmails.length) {
-      console.log("HERE2...");
+    let unclassifiedEmails = mails
+      .map((mail, index) => (mail.type === undefined ? index : undefined))
+      .filter((index) => index !== undefined);
+    let itr = 1;
+    while (unclassifiedEmails.length > 0 && itr++ <= 5) {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       const i = unclassifiedEmails.shift();
       const mail = mails[i];
-
       const type = await fetchMailType(mail);
 
       if (type === undefined) {
-        setUnclassifiedEmails((prev) => [...prev, i]);
+        unclassifiedEmails.push(i);
         continue;
       }
 
@@ -148,12 +148,13 @@ export default function EmailComponent() {
         return newMails;
       });
 
-      setUnclassifiedEmails((prev) => prev.filter((id) => id !== i));
+      // setUnclassifiedEmails((prev) => prev.filter((id) => id !== i));
     }
-    setClassifying(false);
   };
 
-  console.log(unclassifiedEmails);
+  const setLocalMails = () => {
+    localStorage.setItem("mails", JSON.stringify(mails));
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -182,6 +183,7 @@ export default function EmailComponent() {
         });
 
         setMails(newMails);
+        localStorage.setItem("mails", JSON.stringify(newMails));
       })
       .catch((error) => {
         console.error("Failed to fetch mails:", error);
@@ -189,18 +191,32 @@ export default function EmailComponent() {
 
     setLoading(false);
     // setMails(newMails);
-  }, [mailIDs, limit]);
+  }, [mailIDs]);
 
   useEffect(() => {
-    const fetchInitialData = async () => {
-      await fetchMailID();
+    const initialFetch = async () => {
+      if (typeof window !== undefined) {
+        const localMails = localStorage.getItem("mails");
+        if (localMails && localMails.length != 0) {
+          const finalMails = await JSON.parse(localMails);
+          setMails(finalMails);
+          setLimit(finalMails.length);
+          setSelectedMail(finalMails[0]);
+        } else fetchMailID();
+      }
     };
-    fetchInitialData();
-  }, [limit]);
+    initialFetch();
+  }, []);
 
+  // useEffect(() => {
+  //   fetchMailID();
+  // }, [limit]);
+
+  useEffect(() => {
+    if (mails.length > 0) setLocalMails();
+  }, [mails]);
+  // if (loading) return <Loader />;
   // console.log(mails);
-
-  if (loading) return <Loader />;
 
   return (
     <div className="h-full bg-black">
@@ -211,7 +227,10 @@ export default function EmailComponent() {
           </label>
 
           <select
-            onChange={(e) => setLimit(e.target.value)}
+            onChange={(e) => {
+              setLimit(e.target.value);
+              fetchMailID();
+            }}
             value={limit}
             id="limit"
             className="px-10 py-2  rounded-md text-white bg-black border border-[#27272A] appearance-none [&>option]:font-notoSans"
@@ -231,14 +250,9 @@ export default function EmailComponent() {
           </button>
         </div>
         <button
-          className="sm:text-xl border-2 border-white px-3 sm:px-10 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
+          className="sm:text-xl border-2 border-white px-3 sm:px-10 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85 disabled:pointer-events-none"
           disabled={classifying}
-          onClick={() => {
-            {
-              classifyMail();
-              classifyMail();
-            }
-          }}
+          onClick={async () => classifyMail()}
         >
           {classifying ? "Classifying..." : "Classify"}
         </button>

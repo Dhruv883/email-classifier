@@ -40,7 +40,7 @@ const EmailPreview = ({
 
       {type && (
         <div
-          className={`absolute top-2 right-5 px-4 py-1 rounded-2xl`}
+          className={`absolute top-2 right-5 px-4 py-1 rounded-lg`}
           style={{ backgroundColor: typeStyle[type] }}
         >
           {type}
