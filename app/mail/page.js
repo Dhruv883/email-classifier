@@ -6,6 +6,7 @@ import EmailPreview from "@/components/EmailPreview";
 import SelectedMail from "@/components/SelectedMail";
 import { htmlToText } from "html-to-text";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
@@ -220,6 +221,19 @@ export default function EmailComponent() {
 
   return (
     <div className="h-full bg-black">
+      <div className="flex items-center px-8 gap-4 mb-4">
+        <Image
+          src={session.user.image}
+          width={45}
+          height={45}
+          alt="Profile Image"
+          className="rounded-full"
+        />
+        <div className="flex flex-col text-white">
+          <span className="text-2xl font-semibold">{session.user.name}</span>
+          <span className="text-base font-light">{session.user.email}</span>
+        </div>
+      </div>
       <div className="py-4 px-8 flex flex-col mobile:flex-row items-center mobile:justify-between gap-4">
         <div className="flex flex-col mobile:flex-row items-center justify-center gap-4">
           <label htmlFor="limit" className="text-white mr-4 text-xl ">
