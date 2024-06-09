@@ -1,15 +1,42 @@
 "use client";
 import React, { useState } from "react";
 import { useSession, signIn } from "next-auth/react";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 
 const page = () => {
   const { data: session, status } = useSession();
   const [key, setKey] = useState("");
   if (status != "authenticated") redirect("/");
+  const router = useRouter();
+
+  const validKey = async () => {
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1/models?key=${key}`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      const data = await response.json();
+      const { error } = data;
+      if (error) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error:", error);
+      return false;
+    }
+  };
 
   const handleClick = () => {
-    localStorage.setItem("GEMINI_API_KEY", key);
+    if (validKey()) {
+      localStorage.setItem("GEMINI_API_KEY", key);
+      router.push("/mail");
+    } else {
+      alert("Enter a valid api key");
+    }
   };
 
   return (
@@ -39,13 +66,13 @@ const page = () => {
           <h2 className="text-xl">Steps:</h2>
           <ol className="list-decimal list-inside space-y-2">
             <li>
-              Log in to Google AI Studio{" "}
+              Log in to{" "}
               <a
                 href="https://aistudio.google.com/"
                 className="underline"
                 target="_blank"
               >
-                Google AI website{" "}
+                Google AI Studio{" "}
               </a>
             </li>
             <li>Click on "Get API Key".</li>

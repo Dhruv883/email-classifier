@@ -2,7 +2,6 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import Loader from "@/components/Loader";
-import _ from "lodash";
 import EmailPreview from "@/components/EmailPreview";
 import SelectedMail from "@/components/SelectedMail";
 import { htmlToText } from "html-to-text";
@@ -10,13 +9,21 @@ import { redirect } from "next/navigation";
 
 export default function EmailComponent() {
   const { data: session, status } = useSession();
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(25);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMail, setSelectedMail] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  if (localStorage.getItem("GEMINI_API_KEY") === null) redirect("/key");
+  const [classifying, setClassifying] = useState(false);
+
+  if (status !== "authenticated") redirect("/");
+
+  let API_KEY;
+  if (typeof window !== "undefined" && window.localStorage) {
+    API_KEY = localStorage.getItem("GEMINI_API_KEY");
+    if (!API_KEY) redirect("/key");
+  }
 
   const targetMimeTypes = ["text/html", "text/plain"];
 
@@ -73,7 +80,7 @@ export default function EmailComponent() {
   };
 
   const fetchMailType = async (mail) => {
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     const emailContent = mail.msg;
     try {
       const res = await fetch(`/api/classify`, {
@@ -81,7 +88,7 @@ export default function EmailComponent() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ emailContent }),
+        body: JSON.stringify({ emailContent, API_KEY }),
       });
       const data = await res.json();
       return data.answer;
@@ -91,12 +98,22 @@ export default function EmailComponent() {
     return null;
   };
 
+  const [unclassifiedEmails, setUnclassifiedEmails] = useState([]);
+
   const classifyMail = async () => {
+    setClassifying(true);
+    const SIZE = 5;
     for (let i = 0; i < mails.length; i++) {
       let mail = mails[i];
       if (mail.type) continue;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const type = await fetchMailType(mail);
+      let type = await fetchMailType(mail);
+      if (type === undefined) {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        setUnclassifiedEmails((prev) => {
+          return [...prev, i];
+        });
+      }
+      console.log(i, " ", type);
       const newMail = { ...mail, type: type };
 
       setMails((prevMails) => {
@@ -104,8 +121,39 @@ export default function EmailComponent() {
         newMails[i] = newMail;
         return newMails;
       });
+      if (i % SIZE == 0)
+        await new Promise((resolve) => setTimeout(resolve, 5000));
     }
+    classifyRestMails();
   };
+
+  const classifyRestMails = async () => {
+    while (unclassifiedEmails.length) {
+      console.log("HERE2...");
+      const i = unclassifiedEmails.shift();
+      const mail = mails[i];
+
+      const type = await fetchMailType(mail);
+
+      if (type === undefined) {
+        setUnclassifiedEmails((prev) => [...prev, i]);
+        continue;
+      }
+
+      const updatedMail = { ...mail, type };
+
+      setMails((prevMails) => {
+        const newMails = [...prevMails];
+        newMails[i] = updatedMail;
+        return newMails;
+      });
+
+      setUnclassifiedEmails((prev) => prev.filter((id) => id !== i));
+    }
+    setClassifying(false);
+  };
+
+  console.log(unclassifiedEmails);
 
   useEffect(() => {
     setLoading(true);
@@ -127,6 +175,7 @@ export default function EmailComponent() {
           mailBody = findTargetMimeType(topLevelParts);
           if (!mail.parts) {
             mailBody = decodeMail(mail.payloadBody?.data);
+            mailBody = mailBody.replace(/<[^>]*>/g, "");
           }
           newMails.push({ ...mail, msg: mailBody });
           setSelectedMail(newMails[0]);
@@ -143,12 +192,10 @@ export default function EmailComponent() {
   }, [mailIDs, limit]);
 
   useEffect(() => {
-    setLoading(true);
     const fetchInitialData = async () => {
       await fetchMailID();
     };
     fetchInitialData();
-    setLoading(false);
   }, [limit]);
 
   // console.log(mails);
@@ -157,8 +204,8 @@ export default function EmailComponent() {
 
   return (
     <div className="h-full bg-black">
-      <div className="py-4 px-8 flex flex-col mobile:flex-row items-center mobile:justify-between gap-3 ">
-        <div className="flex flex-col mobile:flex-row items-center justify-center gap-2 ">
+      <div className="py-4 px-8 flex flex-col mobile:flex-row items-center mobile:justify-between gap-4">
+        <div className="flex flex-col mobile:flex-row items-center justify-center gap-4">
           <label htmlFor="limit" className="text-white mr-4 text-xl ">
             No. of Emails :
           </label>
@@ -169,18 +216,31 @@ export default function EmailComponent() {
             id="limit"
             className="px-10 py-2  rounded-md text-white bg-black border border-[#27272A] appearance-none [&>option]:font-notoSans"
           >
+            <option value="5">5 Emails</option>
             <option value="10">10 Emails</option>
+            <option value="15">15 Emails</option>
             <option value="20">20 Emails</option>
-            <option value="30">30 Emails</option>
-            <option value="40">40 Emails</option>
-            <option value="50">50 Emails</option>
+            <option value="25">25 Emails</option>
           </select>
+
+          <button
+            className="sm:text-lg border-2 border-white px-3 sm:px-6 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
+            onClick={() => fetchMailID()}
+          >
+            Fetch Emails
+          </button>
         </div>
         <button
-          className="px-10 py-2 rounded-md text-xl text-white bg-gray hover:bg-gray/85 font-notoSans"
-          onClick={() => classifyMail()}
+          className="sm:text-xl border-2 border-white px-3 sm:px-10 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85"
+          disabled={classifying}
+          onClick={() => {
+            {
+              classifyMail();
+              classifyMail();
+            }
+          }}
         >
-          Classify
+          {classifying ? "Classifying..." : "Classify"}
         </button>
       </div>
       <div className="flex gap-4 bg-black text-white lg:px-4">

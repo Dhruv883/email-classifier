@@ -26,7 +26,7 @@ const SelectedMail = ({ selectedMail, setShowModal }) => {
   return (
     <div className="border border-gray rounded-md">
       <div onClick={() => setShowModal(false)} className="lg:hidden p-2">
-        <Image src="/icons/cross.svg" width={50} height={50} />
+        <Image src="/icons/cross.svg" width={50} height={50} alt="X" />
       </div>
       <div className="w-full p-4 border-b border-gray space-y-2">
         <div className="flex justify-between">

@@ -1,10 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY);
-
 export async function POST(request) {
   const body = await request.json();
-  const { emailContent } = body;
+  const { emailContent, API_KEY } = body;
+  const genAI = new GoogleGenerativeAI(API_KEY);
 
   if (!emailContent) {
     return Response.json({ error: "Email content is required" });
@@ -29,7 +28,6 @@ export async function POST(request) {
 
     return Response.json({ answer });
   } catch (error) {
-    console.log(error);
     return Response.json({ message: "Error checking for mail type" });
   }
 }
