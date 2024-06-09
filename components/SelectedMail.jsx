@@ -31,7 +31,7 @@ const SelectedMail = ({ selectedMail, setShowModal }) => {
       <div className="w-full p-4 border-b border-gray space-y-2">
         <div className="flex justify-between">
           <span className="text-2xl font-semibold">{fromName}</span>
-          <span className="text-textGray text-lg">{mainDate}</span>
+          <span className="text-lg">{mainDate}</span>
         </div>
         <div className="text-sm text-textGray">From: {fromEmail}</div>
         <div className="font-medium">Sub: {subject}</div>
