@@ -33,7 +33,7 @@ const EmailPreview = ({
       <div className="text-2xl font-semibold">{fromName}</div>
       <div className="w-4/5 font-medium">Sub: {subject}</div>
       <div className="text-textGray text-wrap">
-        <pre className="text-wrap break-words whitespace-pre-wrap text-sm tracking-tight">
+        <pre className="text-wrap break-words whitespace-pre-wrap text-sm tracking-tight font-notoSans">
           {snippet}
         </pre>
       </div>

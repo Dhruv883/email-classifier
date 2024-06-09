@@ -45,7 +45,9 @@ const SelectedMail = ({ selectedMail, setShowModal }) => {
         )}
       </div>
       <div className="p-4 text-wrap w-full">
-        <pre className="text-wrap break-words whitespace-pre-wrap">{msg}</pre>
+        <pre className="text-wrap break-words whitespace-pre-wrap font-notoSans">
+          {msg}
+        </pre>
       </div>
     </div>
   );
