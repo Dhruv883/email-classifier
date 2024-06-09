@@ -39,7 +39,7 @@ const page = () => {
 
   return (
     <div className="h-5/6 w-screen overflow-x-hidden bg-black p-4 flex flex-col  gap-10 items-center justify-center">
-      <div className="h-full flex flex-col items-center justify-center gap-4">
+      <div className="flex flex-col items-center justify-center gap-4">
         <label htmlFor="limit" className="text-white mr-4 text-xl ">
           Enter your Gemini API key :
         </label>
