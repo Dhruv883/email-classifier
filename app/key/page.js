@@ -1,12 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { useSession, signIn } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const page = () => {
-  const { data: session, status } = useSession();
   const [key, setKey] = useState("");
-  if (status != "authenticated") redirect("/");
+
   const router = useRouter();
 
   const validKey = async () => {
@@ -40,8 +38,8 @@ const page = () => {
   };
 
   return (
-    <div className="h-5/6 w-full bg-black p-4 flex flex-col  gap-10 items-center justify-center">
-      <div className="flex flex-col items-center justify-center gap-4">
+    <div className="h-5/6 w-screen overflow-x-hidden bg-black p-4 flex flex-col  gap-10 items-center justify-center">
+      <div className="h-full flex flex-col items-center justify-center gap-4">
         <label htmlFor="limit" className="text-white mr-4 text-xl ">
           Enter your Gemini API key :
         </label>

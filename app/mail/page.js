@@ -13,7 +13,7 @@ export default function EmailComponent() {
   const [limit, setLimit] = useState(15);
   const [mails, setMails] = useState([]);
   const [mailIDs, setMailIDs] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [selectedMail, setSelectedMail] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [classifying, setClassifying] = useState(false);
@@ -29,6 +29,7 @@ export default function EmailComponent() {
   const targetMimeTypes = ["text/html", "text/plain"];
 
   const fetchMailID = async () => {
+    setLoading(true);
     const response = await fetch(`/api/email?limit=${limit}`);
     const data = await response.json();
     setMailIDs(data.messages);
@@ -185,12 +186,12 @@ export default function EmailComponent() {
 
         setMails(newMails);
         localStorage.setItem("mails", JSON.stringify(newMails));
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch mails:", error);
       });
 
-    setLoading(false);
     // setMails(newMails);
   }, [mailIDs]);
 
@@ -216,7 +217,9 @@ export default function EmailComponent() {
   useEffect(() => {
     if (mails.length > 0) setLocalMails();
   }, [mails]);
-  // if (loading) return <Loader />;
+
+  if (loading) return <Loader />;
+
   // console.log(mails);
 
   return (
@@ -243,7 +246,6 @@ export default function EmailComponent() {
           <select
             onChange={(e) => {
               setLimit(e.target.value);
-              fetchMailID();
             }}
             value={limit}
             id="limit"
@@ -264,7 +266,7 @@ export default function EmailComponent() {
           </button>
         </div>
         <button
-          className="sm:text-xl border-2 border-white px-3 sm:px-10 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85 disabled:pointer-events-none"
+          className="sm:text-lg border-2 border-white px-8 sm:px-10 py-1 rounded-md flex items-center justify-center bg-white text-black hover:bg-white/85 disabled:pointer-events-none"
           disabled={classifying}
           onClick={async () => classifyMail()}
         >
